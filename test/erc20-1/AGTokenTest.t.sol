@@ -14,6 +14,7 @@ contract AGTokenTest is Test {
     address public USER_THREE = makeAddr("userThree");
 
     uint256 private constant ONE_HUNDRED_THOUSAND_TOKENS = 100000;
+    uint256 private constant ONE_THOUSAND_TOKENS = 1000;
     uint256 private constant FIVE_THOUSAND_TOKENS = 5000;
 
     function setUp() public {
@@ -48,4 +49,14 @@ contract AGTokenTest is Test {
         assertEq(ag.balanceOf(USER_THREE), expectedAmount);
         vm.stopPrank();
     }
+
+    //6. From User3: approve User1 to spend 1K tokens
+    //7. Test that User1 has the right allowance that was given by User3
+    function testUserThreeApprovesTokensToUserOne() public {
+        vm.startPrank(USER_THREE);
+        ag.approve(USER_ONE, ONE_THOUSAND_TOKENS);
+        vm.stopPrank();
+        assertEq(ag.allowance(USER_THREE, USER_ONE), ONE_THOUSAND_TOKENS);
+    }
+
 }
