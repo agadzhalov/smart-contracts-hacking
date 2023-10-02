@@ -2,7 +2,7 @@
 // https://smartcontractshacking.com/#copyright-policy
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {rToken} from "./rToken.sol";
 
 /**
@@ -11,6 +11,14 @@ import {rToken} from "./rToken.sol";
  */
 contract TokensDepository {
 
-    // TODO: Complete this contract functionality
+
+    mapping(address => IERC20) public tokens;
     
+    // TODO: Complete this contract functionality
+    constructor(address _aave, address _uni, address _weth) {
+        // suported tokens
+        tokens[_aave] = IERC20(_aave);
+        tokens[_uni] = IERC20(_uni);
+        tokens[_weth] = IERC20(_weth);
+    }
 }
