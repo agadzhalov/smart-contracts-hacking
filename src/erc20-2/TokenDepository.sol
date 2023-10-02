@@ -17,6 +17,11 @@ contract TokensDepository {
     rToken public rUni;
     rToken public rWeth;
     
+    modifier tokenIsSupported(address _token) {
+        require(address(tokens[_token]) != address(0), "token is not supported");
+        _;
+    }
+
     // TODO: Complete this contract functionality
     constructor(address _aave, address _uni, address _weth) {
         // suported tokens
@@ -29,4 +34,11 @@ contract TokensDepository {
         receiptTokens[_uni] = new rToken(_aave, "receipt uni", "rUni");
         receiptTokens[_weth] = new rToken(_aave, "receipt weth", "rWeth");
     }
+
+    function deposit(address _token, uint256 _amount) external tokenIsSupported(_token) {
+        bool success = tokens[_token].transferFrom(msg.sender, address(this), _amount);
+        require(success, "transferFrom failed");
+        receiptTokens[_token].mint(msg.sender, _amount);
+    }
+
 }
