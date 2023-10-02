@@ -8,7 +8,7 @@ contract AGToken is ERC20, Ownable {
 
     address public s_owner;
 
-    constructor() ERC20("AGToken", "AG") {
+    constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {
         s_owner = msg.sender;
     }
 
