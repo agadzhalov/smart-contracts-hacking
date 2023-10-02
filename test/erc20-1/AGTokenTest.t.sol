@@ -57,6 +57,15 @@ contract AGTokenTest is Test {
         ag.approve(USER_ONE, ONE_THOUSAND_TOKENS);
         vm.stopPrank();
         assertEq(ag.allowance(USER_THREE, USER_ONE), ONE_THOUSAND_TOKENS);
+
+        //8. From User1: using transferFrom(), transfer 1K tokens from User3 to User1
+        vm.startPrank(USER_ONE);
+        ag.transferFrom(USER_THREE, USER_ONE, ONE_THOUSAND_TOKENS);
+        uint256 userOneExpectedAmout = FIVE_THOUSAND_TOKENS + ONE_THOUSAND_TOKENS;
+        uint256 userThreeExpectedAmount = FIVE_THOUSAND_TOKENS - ONE_THOUSAND_TOKENS;
+        assertEq(ag.balanceOf(USER_THREE), userThreeExpectedAmount);
+        assertEq(ag.balanceOf(USER_ONE), userOneExpectedAmout);
+        vm.stopPrank();
     }
 
 }
