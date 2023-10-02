@@ -41,4 +41,10 @@ contract TokensDepository {
         receiptTokens[_token].mint(msg.sender, _amount);
     }
 
+    function withdraw(address _token, uint256 _amount) external tokenIsSupported(_token) {
+        receiptTokens[_token].burn(msg.sender, _amount);
+        bool success = tokens[_token].transfer(msg.sender, _amount);
+        require(success, "transfer failed");
+    }
+
 }
