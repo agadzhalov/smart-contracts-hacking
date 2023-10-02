@@ -20,29 +20,32 @@ contract AGTokenTest is Test {
         // 1. Deploy your contract from the deployer account
         vm.startPrank(OWNER);
         ag = new AGToken("AGToken", "AGT");
-        vm.stopPrank();
-    }
 
-    // 2. Mint 100K tokens to yourself (Deployer)
-    function testMint100KTokenToDeployer() public {
-        vm.startPrank(OWNER);
+        // 2. Mint 100K tokens to yourself (Deployer)
         ag.mint(OWNER, ONE_HUNDRED_THOUSAND_TOKENS);
+
+        //3. Mint 5K tokens to each one of the users
+        ag.mint(USER_ONE, FIVE_THOUSAND_TOKENS);
+        ag.mint(USER_TWO, FIVE_THOUSAND_TOKENS);
+        ag.mint(USER_THREE, FIVE_THOUSAND_TOKENS);
+
         vm.stopPrank();
-        console.log("total amount: ", ag.balanceOf(OWNER));
-        assertEq(ag.balanceOf(OWNER), ONE_HUNDRED_THOUSAND_TOKENS);
     }
 
-    //3. Mint 5K tokens to each one of the users
+    //4. Verify with a test that every user has the right amount of tokens
     function testMint5KTokensEachUser() public {
-        vm.startPrank(OWNER);
-        ag.mint(USER_ONE, FIVE_THOUSAND_TOKENS);
+        assertEq(ag.balanceOf(OWNER), ONE_HUNDRED_THOUSAND_TOKENS);
         assertEq(ag.balanceOf(USER_ONE), FIVE_THOUSAND_TOKENS);
-
-        ag.mint(USER_TWO, FIVE_THOUSAND_TOKENS);
         assertEq(ag.balanceOf(USER_TWO), FIVE_THOUSAND_TOKENS);
-
-        ag.mint(USER_THREE, FIVE_THOUSAND_TOKENS);
         assertEq(ag.balanceOf(USER_THREE), FIVE_THOUSAND_TOKENS);
+    }
+
+    // 5. Transfer 100 tokens from User2 to User3
+    function testTrasnfertTokensFromUserTwoToUserThree() public {
+        vm.startPrank(USER_TWO);
+        ag.transfer(USER_THREE, 100);
+        uint256 expectedAmount = FIVE_THOUSAND_TOKENS + 100;
+        assertEq(ag.balanceOf(USER_THREE), expectedAmount);
         vm.stopPrank();
     }
 }
