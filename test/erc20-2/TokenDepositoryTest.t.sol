@@ -16,6 +16,10 @@ contract TokenDepositoryTest is Test {
 
     uint256 public constant ONE_ETH = 1 ether;
 
+    uint256 public constant AAVE_AMOUNT = 15 ether;
+    uint256 public constant UNI_AMOUNT = 100 ether;
+    uint256 public constant WETH_AMOUNT = 150 ether;
+
     TokensDepository public depository;
     mapping(address => IERC20) supportedTokens;
     mapping(address => rToken) receiptTokens;
@@ -40,10 +44,6 @@ contract TokenDepositoryTest is Test {
     }
 
     function testDeposit() public {
-        uint256 AAVE_AMOUNT = 15 ether;
-        uint256 UNI_AMOUNT = 100 ether;
-        uint256 WETH_AMOUNT = 150 ether;
-
         vm.startPrank(HOLDER);
         // aave approve, transferFrom and assert
         supportedTokens[AAVE_ADDRESS].approve(address(depository), AAVE_AMOUNT);
@@ -71,7 +71,30 @@ contract TokenDepositoryTest is Test {
     }
 
     function testWithdraw() public {
+        vm.startPrank(HOLDER);
 
+        // before withrdrawing we have to deposit
+        supportedTokens[AAVE_ADDRESS].approve(address(depository), AAVE_AMOUNT);
+        supportedTokens[UNI_ADDRESS].approve(address(depository), UNI_AMOUNT);
+        supportedTokens[WETH_ADDRESS].approve(address(depository), WETH_AMOUNT);
+
+        depository.deposit(AAVE_ADDRESS, AAVE_AMOUNT);
+        depository.deposit(UNI_ADDRESS, UNI_AMOUNT);
+        depository.deposit(WETH_ADDRESS, WETH_AMOUNT);
+
+        uint256 rAaveExptectedAmount = receiptTokens[AAVE_ADDRESS].balanceOf(address(HOLDER)) - AAVE_AMOUNT;
+        uint256 rUniExptectedAmount = receiptTokens[UNI_ADDRESS].balanceOf(address(HOLDER)) - UNI_AMOUNT;
+        uint256 rWethExptectedAmount = receiptTokens[WETH_ADDRESS].balanceOf(address(HOLDER)) - WETH_AMOUNT;
+
+        depository.withdraw(AAVE_ADDRESS, AAVE_AMOUNT);
+        depository.withdraw(UNI_ADDRESS, UNI_AMOUNT);
+        depository.withdraw(WETH_ADDRESS, WETH_AMOUNT);
+
+        assertEq(receiptTokens[AAVE_ADDRESS].balanceOf(address(depository)), rAaveExptectedAmount);
+        assertEq(receiptTokens[UNI_ADDRESS].balanceOf(address(depository)), rUniExptectedAmount);
+        assertEq(receiptTokens[WETH_ADDRESS].balanceOf(address(depository)), rWethExptectedAmount);
+
+        vm.stopPrank();
     }
 
 }
