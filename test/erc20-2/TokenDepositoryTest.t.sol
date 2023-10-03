@@ -20,6 +20,10 @@ contract TokenDepositoryTest is Test {
     uint256 public constant UNI_AMOUNT = 100 ether;
     uint256 public constant WETH_AMOUNT = 150 ether;
 
+    uint256 public aaveInitialBalance;
+    uint256 public uniInitialBalance;
+    uint256 public wethInitialBalance;
+
     TokensDepository public depository;
     mapping(address => IERC20) supportedTokens;
     mapping(address => rToken) receiptTokens;
@@ -41,6 +45,10 @@ contract TokenDepositoryTest is Test {
         // send eth to holder in case it doesn't have any
         (bool success, ) = HOLDER.call{value: ONE_ETH}("");
 
+        // set initial balances
+        aaveInitialBalance = supportedTokens[AAVE_ADDRESS].balanceOf(HOLDER);
+        uniInitialBalance = supportedTokens[UNI_ADDRESS].balanceOf(HOLDER);
+        wethInitialBalance = supportedTokens[WETH_ADDRESS].balanceOf(HOLDER);
     }
 
     function testDeposit() public {
@@ -82,17 +90,19 @@ contract TokenDepositoryTest is Test {
         depository.deposit(UNI_ADDRESS, UNI_AMOUNT);
         depository.deposit(WETH_ADDRESS, WETH_AMOUNT);
 
-        uint256 rAaveExptectedAmount = receiptTokens[AAVE_ADDRESS].balanceOf(address(HOLDER)) - AAVE_AMOUNT;
-        uint256 rUniExptectedAmount = receiptTokens[UNI_ADDRESS].balanceOf(address(HOLDER)) - UNI_AMOUNT;
-        uint256 rWethExptectedAmount = receiptTokens[WETH_ADDRESS].balanceOf(address(HOLDER)) - WETH_AMOUNT;
-
         depository.withdraw(AAVE_ADDRESS, AAVE_AMOUNT);
         depository.withdraw(UNI_ADDRESS, UNI_AMOUNT);
         depository.withdraw(WETH_ADDRESS, WETH_AMOUNT);
 
-        assertEq(receiptTokens[AAVE_ADDRESS].balanceOf(address(depository)), rAaveExptectedAmount);
-        assertEq(receiptTokens[UNI_ADDRESS].balanceOf(address(depository)), rUniExptectedAmount);
-        assertEq(receiptTokens[WETH_ADDRESS].balanceOf(address(depository)), rWethExptectedAmount);
+        // assert depositor got back the assets
+        assertEq(supportedTokens[AAVE_ADDRESS].balanceOf(HOLDER), aaveInitialBalance);
+        assertEq(supportedTokens[UNI_ADDRESS].balanceOf(HOLDER), uniInitialBalance);
+        assertEq(supportedTokens[WETH_ADDRESS].balanceOf(HOLDER), wethInitialBalance);
+        
+        // assert the right amount of tokens were burn
+        assertEq(receiptTokens[AAVE_ADDRESS].balanceOf(HOLDER), 0);
+        assertEq(receiptTokens[UNI_ADDRESS].balanceOf(HOLDER), 0);
+        assertEq(receiptTokens[WETH_ADDRESS].balanceOf(HOLDER), 0);
 
         vm.stopPrank();
     }
