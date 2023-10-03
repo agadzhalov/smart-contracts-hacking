@@ -40,7 +40,34 @@ contract TokenDepositoryTest is Test {
     }
 
     function testDeposit() public {
-        
+        uint256 AAVE_AMOUNT = 15 ether;
+        uint256 UNI_AMOUNT = 100 ether;
+        uint256 WETH_AMOUNT = 150 ether;
+
+        vm.startPrank(HOLDER);
+        // aave approve, transferFrom and assert
+        supportedTokens[AAVE_ADDRESS].approve(address(depository), AAVE_AMOUNT);
+        depository.deposit(AAVE_ADDRESS, AAVE_AMOUNT);
+
+        // assert depository contract contains amount of supported aave token
+        assertEq(supportedTokens[AAVE_ADDRESS].balanceOf(address(depository)), AAVE_AMOUNT);
+
+        // assert minted receipt tokens to HOLDER
+        assertEq(receiptTokens[AAVE_ADDRESS].balanceOf(HOLDER), AAVE_AMOUNT);
+
+        // uni approve, transferFrom and assert
+        supportedTokens[UNI_ADDRESS].approve(address(depository), UNI_AMOUNT);
+        depository.deposit(UNI_ADDRESS, UNI_AMOUNT);
+        assertEq(supportedTokens[UNI_ADDRESS].balanceOf(address(depository)), UNI_AMOUNT);
+        assertEq(receiptTokens[UNI_ADDRESS].balanceOf(HOLDER), UNI_AMOUNT);
+
+        // weth approve, transferFrom and assert
+        supportedTokens[WETH_ADDRESS].approve(address(depository), WETH_AMOUNT);
+        depository.deposit(WETH_ADDRESS, WETH_AMOUNT);
+        assertEq(supportedTokens[WETH_ADDRESS].balanceOf(address(depository)), WETH_AMOUNT);
+        assertEq(receiptTokens[WETH_ADDRESS].balanceOf(HOLDER), WETH_AMOUNT);
+
+        vm.stopPrank();
     }
 
     function testWithdraw() public {
