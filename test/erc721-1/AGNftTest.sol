@@ -9,6 +9,10 @@ contract AGNftTest is Test {
     
     AGNft agNft;
     address public deployer = makeAddr("deployer");
+    address public userOne = makeAddr("userOne");
+
+    uint256 private constant INITIAL_BALANACE = 100 ether;
+    uint256 private constant MINT_PRICE = 0.1 ether;
 
     function setUp() public {
         //1. Deploy your contract from the deployer account
@@ -19,20 +23,22 @@ contract AGNftTest is Test {
 
     function testNft() public {
         // 2. Mint 5 tokens from Deployer
-        
         vm.startPrank(deployer);
-        vm.deal(deployer, 100 ether);
-
-        console.log("balance", deployer.balance);
+        vm.deal(deployer, INITIAL_BALANACE);
 
         for (uint8 i = 0; i < 5; i++) {
-            agNft.mint{value: 0.1 ether}(deployer);
+            agNft.mint{value: MINT_PRICE}(deployer);
         }
-
-        console.log("balance after", deployer.balance);
-
-
+        
+        assertEq(agNft.balanceOf(deployer), 5);
         vm.stopPrank();
+
+        // 3. Mint 3 Tokens from User1
+        hoax(userOne, INITIAL_BALANACE);
+        for (uint8 i = 0; i < 3; i++) {
+            agNft.mint{value: MINT_PRICE}(userOne);
+        }
+        assertEq(agNft.balanceOf(userOne), 3);
     }
 
 }
