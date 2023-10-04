@@ -14,7 +14,7 @@ contract AGNft is ERC721 {
     uint256 public constant MINT_PRICE = 0.1 ether;
     
     error AGNft_MaxTotalSupplyExceeded();
-    error AGNft_NotEnoughFunds();
+    error AGNft_NotExactMintPrice();
 
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
         owner = msg.sender;
@@ -22,8 +22,8 @@ contract AGNft is ERC721 {
     }
 
     function mint(address _to) payable external {
-        if (MINT_PRICE > msg.value) {
-            revert AGNft_NotEnoughFunds();
+        if (MINT_PRICE < msg.value || MINT_PRICE > msg.value) {
+            revert AGNft_NotExactMintPrice();
         }
         s_counter++;
         if (s_counter > MAX_TOTAL_SUPPLY) {
