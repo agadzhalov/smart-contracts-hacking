@@ -6,10 +6,10 @@ import {AGNft} from "../../src/erc721-1/AGNft.sol";
 
 contract AGNftTest is Test {
     
-    AGNft agNft;
-    address public deployer = makeAddr("deployer");
-    address public userOne = makeAddr("userOne");
-    address public userTwo = makeAddr("userTwo");
+    AGNft public agNft;
+    address private deployer = makeAddr("deployer");
+    address private userOne = makeAddr("userOne");
+    address private userTwo = makeAddr("userTwo");
 
     uint256 private constant INITIAL_BALANACE = 100 ether;
     uint256 private constant MINT_PRICE = 0.1 ether;
