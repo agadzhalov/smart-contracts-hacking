@@ -39,6 +39,17 @@ contract OpenOceanTest is Test {
         _listCryptoCuties();
         // 2.1  Test that the itemsCounter is 10
         assertEq(oc.itemsCounter(), 10);
+        // 2.2 Test that the marketplace contract owns 10 Crypto Cuties NFTs
+        assertEq(cutiesNft.balanceOf(address(oc)), 10);
+
+        // 2.3 Check that all the parameters of the last item that was listed are correct
+        uint256 _lastItemId = oc.itemsCounter();
+        assertEq(oc.getItemById(_lastItemId).itemId, _lastItemId);
+        assertEq(oc.getItemById(_lastItemId).collectionContract, address(cutiesNft));
+        assertEq(oc.getItemById(_lastItemId).tokenId, 10);
+        assertEq(oc.getItemById(_lastItemId).price, 5 ether);
+        assertEq(oc.getItemById(_lastItemId).seller, userOne);
+        assertEq(oc.getItemById(_lastItemId).isSold, false);
     }
 
     function _listCryptoCuties() private {

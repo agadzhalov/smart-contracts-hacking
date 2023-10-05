@@ -1,6 +1,6 @@
 // SCH Course Copyright Policy (C): DO-NOT-SHARE-WITH-ANYONE
 // https://smartcontractshacking.com/#copyright-policy
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.18;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -58,6 +58,10 @@ contract OpenOcean {
         IERC721(listedItems[_itemId].collectionContract).transferFrom(address(this), msg.sender, listedItems[_itemId].tokenId);
         (bool sentEth, ) = payable(msg.sender).call{value: listedItems[_itemId].price}("");
         require(sentEth, "unsuccessful transfer of ETH to seller");
+    }
+
+    function getItemById(uint256 _itemId) external view returns(Item memory) {
+        return listedItems[_itemId];
     }
     
 }
