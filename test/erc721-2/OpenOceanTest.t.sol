@@ -10,6 +10,7 @@ contract OpenOceanTest is Test {
     
     OpenOcean public oc;
     DummyERC721 public cutiesNft;
+    DummyERC721 public rareNft;
 
     address private deployer = makeAddr("deployer");
     address private userOne = makeAddr("userOne");
@@ -28,6 +29,7 @@ contract OpenOceanTest is Test {
 
         // initial mint of Crypto Cuties
         _mintCutiesNfts();
+        _mintRareBooblesNfts();
     }
 
     function testCutiesNftMinted() public {
@@ -50,13 +52,39 @@ contract OpenOceanTest is Test {
         assertEq(oc.getItemById(_lastItemId).price, 5 ether);
         assertEq(oc.getItemById(_lastItemId).seller, userOne);
         assertEq(oc.getItemById(_lastItemId).isSold, false);
+
+        // 3. From user3: List Rare Boobles token IDs 1 - 5, for 7 ETH each
+        _listRareBoobles();
+        // 3.1 Test that the itemsCounter is 15
+        assertEq(oc.itemsCounter(), 15);
+
+        // 3.2 Test that the marketplace contract owns 5 Rare Boobles NFTs
+        assertEq(rareNft.balanceOf(address(oc)), 5);
+
+        // 3.3 Check that all the parameters of the last item that was listed are correct
+        uint256 _latestLastItem = oc.itemsCounter();
+        assertEq(oc.getItemById(_latestLastItem).itemId, _latestLastItem);
+        assertEq(oc.getItemById(_latestLastItem).collectionContract, address(rareNft));
+        assertEq(oc.getItemById(_latestLastItem).tokenId, 5);
+        assertEq(oc.getItemById(_latestLastItem).price, 7 ether);
+        assertEq(oc.getItemById(_latestLastItem).seller, userThree);
+        assertEq(oc.getItemById(_latestLastItem).isSold, false);
     }
 
     function _listCryptoCuties() private {
         vm.startPrank(userOne);
-        for (uint i=1; i<=10; i++) {
+        for (uint i = 1; i <= 10; i++) {
             cutiesNft.approve(address(oc), i);
             oc.listItem(address(cutiesNft), i, 5 ether);
+        }
+        vm.stopPrank();
+    }
+
+    function _listRareBoobles() private {
+        vm.startPrank(userThree);
+        for (uint i = 1; i <= 5; i++) {
+            rareNft.approve(address(oc), i);
+            oc.listItem(address(rareNft), i, 7 ether);
         }
         vm.stopPrank();
     }
@@ -65,6 +93,13 @@ contract OpenOceanTest is Test {
         vm.startPrank(userOne);
         cutiesNft = new DummyERC721("Crypto Cuties", "CC", MAX_SUPPLY);
         cutiesNft.mintBulk(100);
+        vm.stopPrank();
+    }
+
+    function _mintRareBooblesNfts() private {
+        vm.startPrank(userThree);
+        rareNft = new DummyERC721("RareBoobles", "RB", MAX_SUPPLY);
+        rareNft.mintBulk(100);
         vm.stopPrank();
     }
 
