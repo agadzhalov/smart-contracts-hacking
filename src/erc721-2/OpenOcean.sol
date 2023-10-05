@@ -52,7 +52,8 @@ contract OpenOcean {
     // 4. Transfer NFT to buyer
     // 5. Transfer ETH to seller
     function purchase(uint256 _itemId) external payable {
-        require(listedItems[_itemId].isSold != true, "item is sold");
+        require(listedItems[_itemId].itemId != 0, "incorrect _itemId");
+        require(listedItems[_itemId].isSold == false, "item is sold");
         require (msg.value == listedItems[_itemId].price, "wrong price");
         listedItems[_itemId].isSold = true;
         IERC721(listedItems[_itemId].collectionContract).transferFrom(address(this), msg.sender, listedItems[_itemId].tokenId);
