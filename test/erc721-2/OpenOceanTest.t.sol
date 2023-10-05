@@ -69,7 +69,47 @@ contract OpenOceanTest is Test {
         assertEq(oc.getItemById(_latestLastItem).price, 7 ether);
         assertEq(oc.getItemById(_latestLastItem).seller, userThree);
         assertEq(oc.getItemById(_latestLastItem).isSold, false);
+
+        // 4.3 Try to purchase item number 3 with the correct amount of ETH, and make sure the transaction goes through
+        vm.startPrank(userTwo);
+        oc.purchase{value: 5 ether}(3);
+        assertEq(oc.getItemById(3).isSold, true);
+
+        // 4.4 Try to purchase item number 3 again, and make sure the transaction is reverted with the relevant error message
+        vm.expectRevert(bytes("item is sold"));
+        oc.purchase{value: 5 ether}(3);
+
+        // 4.5 Make sure that User2 owns item number 3
+        assertEq(cutiesNft.ownerOf(oc.getItemById(3).tokenId), userTwo);
+
+        // 4.6 Make sure that the User1 got the right amount of ETH for the sale
+        assertEq(userOne.balance, 15 ether);
+
+        // 4.7 Try to purchase item number 11 with the correct amount of ETH, make sure the transaction goes through
+        oc.purchase{value: 7 ether}(11);
+        assertEq(oc.getItemById(11).isSold, true);
+        vm.stopPrank();
+
+        // 4.8 Make sure that User2 owns item number 11
+        assertEq(rareNft.ownerOf(oc.getItemById(11).tokenId), userTwo);
+
+        // 4.9 Make sure that User3 got the right amount of ETH for the sale
+        assertEq(userThree.balance, 17 ether);
     }
+
+    // 4.1 Try to purchase itemId 100 (doesn't exist), and make sure the transaction is reverted
+    function testNonExistingIdPurchaseShouldRevert() public {
+        vm.expectRevert();
+        vm.startPrank(userTwo);
+        oc.purchase(101);
+        vm.stopPrank();
+    }  
+
+    // 4.2 Try to purchase item number 3, without providing any ETH, and make sure the transaction is reverted
+    function testPurchasheWithoutEthShouldRevert() public {
+        vm.expectRevert();
+        oc.purchase(3);
+    } 
 
     function _listCryptoCuties() private {
         vm.startPrank(userOne);
@@ -106,7 +146,7 @@ contract OpenOceanTest is Test {
     function _setInitialAccountBalances() private {
         vm.deal(deployer, 10 ether);
         vm.deal(userOne, 10 ether);
-        vm.deal(userTwo, 10 ether);
+        vm.deal(userTwo, 30 ether);
         vm.deal(userThree, 10 ether);
     }
 
