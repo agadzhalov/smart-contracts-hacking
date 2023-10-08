@@ -11,7 +11,7 @@ contract Charity {
 
     SimpleWallet simpleWallet;
 
-    constructor(address _simpleWallet) payable {
+    constructor(address _simpleWallet) {
         simpleWallet = SimpleWallet(_simpleWallet);
     }
 
