@@ -25,6 +25,7 @@ contract Attack {
         if (address(bank).balance > 0) {
             bank.withdrawETH();
         }
+        // can add else statement and directly send bank's balance to attacker owner
     }
 
 }
