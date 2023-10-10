@@ -5,12 +5,13 @@ pragma solidity ^0.8.13;
 import {console} from "forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title ApesAirdrop
  * @author JohnnyTime (https://smartcontractshacking.com)
  */
-contract ApesAirdrop is ERC721 {
+contract ApesAirdrop is ERC721, ReentrancyGuard {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -36,7 +37,7 @@ contract ApesAirdrop is ERC721 {
         _tokenIds.increment(); // Start with 1
     }
 
-    function mint() external returns (uint16) {
+    function mint() external nonReentrant returns (uint16) {
         
         // Sender is in whitelist & not claimed
         require(isWhitelisted(msg.sender), "not in whitelist");
@@ -47,12 +48,12 @@ contract ApesAirdrop is ERC721 {
         require(tokenId <= maxSupply, "Max supply reached!");
         _tokenIds.increment();
         
-        // Mint NFT
-        _safeMint(msg.sender, tokenId);
-        emit Minted(msg.sender, tokenId);
-
         // Update claimed
         claimed[msg.sender] = true;
+
+        // Mint NFT
+        _safeMint(msg.sender, tokenId); // use mint
+        emit Minted(msg.sender, tokenId);
 
         // Return token ID
         return tokenId;
