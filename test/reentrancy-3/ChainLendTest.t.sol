@@ -19,12 +19,11 @@ contract ChainLendTest is Test {
     address constant USDC_WHALE = 0xF977814e90dA44bFA03b6295A0616a897441aceC;
 
     uint256 constant INIT_BALANCE = 100 * 1e18;
-    uint256 constant USDC_IN_CHAINLEND = 1000000 / 1e6;
+    uint256 constant USDC_IN_CHAINLEND = 1000000;
 
     function setUp() public {
         vm.deal(deployer, INIT_BALANCE);
         vm.deal(attacker, INIT_BALANCE);
-        
 
         vm.startPrank(deployer);
         chainlend = new ChainLend(imBTC_ADDRESS, USDC_ADDRESS);
@@ -43,10 +42,6 @@ contract ChainLendTest is Test {
         vm.startPrank(USDC_WHALE);
         IERC20(USDC_ADDRESS).transfer(address(chainlend), USDC_IN_CHAINLEND);
         vm.stopPrank();
-
-        // vm.startPrank(attacker);
-        // attack = new Attack(address(apes));
-        // vm.stopPrank();
     }
 
     function testInitialSetup() public {
@@ -54,8 +49,37 @@ contract ChainLendTest is Test {
         assertEq(IERC20(USDC_ADDRESS).balanceOf(address(chainlend)), USDC_IN_CHAINLEND);
     }
 
+    /**
+     * The usual journey would be
+     * 1. Deposit
+     * 2. Borrow
+     * 3. Repay
+     * 4. Withdraw
+     */
     function testReentrancyChainLend() public {
-        assertEq(INIT_BALANCE, 100 ether);
+        IERC20 imBTC = IERC20(imBTC_ADDRESS);
+        IERC20 USDC = IERC20(USDC_ADDRESS);
+
+        vm.startPrank(attacker);
+        
+        /** Deposits imBTC tokens */
+        imBTC.approve(address(chainlend), 1);
+        chainlend.deposit(1);
+        assertEq(chainlend.deposits(attacker), 1);
+
+        /** Borrows USDC tokens */
+        console.log("borrow token balance", IERC20(USDC_ADDRESS).balanceOf(address(chainlend)));
+        chainlend.borrow((16000 * 1e6) / 1e8);
+        assertEq(chainlend.debt(attacker), (16000 * 1e6) / 1e8);
+
+        /** repay */
+        USDC.approve(address(chainlend), (16000 * 1e6) / 1e8);
+        chainlend.repay((16000 * 1e6) / 1e8);
+
+        /** Withdraw imBTC tokens */
+        chainlend.withdraw(1);
+
+        vm.stopPrank();
     }
 
 }

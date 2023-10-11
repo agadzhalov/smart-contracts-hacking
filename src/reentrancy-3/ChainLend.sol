@@ -3,7 +3,7 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import {console} from "forge-std/console.sol";
 /**
  * @title ChainLend
  * @author JohnnyTime (https://smartcontractshacking.com)
@@ -54,7 +54,7 @@ contract ChainLend {
         require(amount <= borrowLimit, "BorrowLimit Exceeded");
 
         debt[msg.sender] += amount;
-        borrowToken.transfer(msg.sender, amount);
+        borrowToken.transfer(msg.sender, amount); // @audit - suspicious
     }
 
     function repay(uint256 amount) public{
