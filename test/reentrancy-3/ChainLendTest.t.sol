@@ -3,12 +3,14 @@ pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
 import {ChainLend} from "../../src/Reentrancy-3/ChainLend.sol";
+import {AttackChainLend} from "../../src/Reentrancy-3/AttackChainLend.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 contract ChainLendTest is Test {
 
     ChainLend chainlend;
+    AttackChainLend attackChain;
 
     address deployer = makeAddr("deployer");
     address attacker = makeAddr("attacker");
@@ -35,7 +37,7 @@ contract ChainLendTest is Test {
 
         // Impersonate imBTC Whale and send 1 imBTC to attacker
         vm.startPrank(imBTC_WHALE);
-        IERC20(imBTC_ADDRESS).transfer(attacker, 1);
+        IERC20(imBTC_ADDRESS).transfer(attacker, 2);
         vm.stopPrank();
 
         // Impersonate USDC Whale and send 1M USDC to ChainLend
@@ -56,7 +58,7 @@ contract ChainLendTest is Test {
      * 3. Repay
      * 4. Withdraw
      */
-    function testReentrancyChainLend() public {
+    function testInteractionChainLend() public {
         IERC20 imBTC = IERC20(imBTC_ADDRESS);
         IERC20 USDC = IERC20(USDC_ADDRESS);
 
@@ -79,6 +81,22 @@ contract ChainLendTest is Test {
         /** Withdraw imBTC tokens */
         chainlend.withdraw(1);
 
+        vm.stopPrank();
+    }
+
+    function testReentrancyChainLend() public {
+        IERC20 imBTC = IERC20(imBTC_ADDRESS);
+        IERC20 USDC = IERC20(USDC_ADDRESS);
+
+        vm.startPrank(attacker);
+        attackChain = new AttackChainLend(imBTC_ADDRESS, USDC_ADDRESS, address(chainlend));
+
+        // send tokens to the attack contract
+        imBTC.transfer(address(attackChain), 1e8);
+
+        console.log("balance before", IERC20(USDC_ADDRESS).balanceOf(address(chainlend)));
+        attackChain.attack();
+        console.log("balance after", IERC20(USDC_ADDRESS).balanceOf(address(chainlend)));
         vm.stopPrank();
     }
 

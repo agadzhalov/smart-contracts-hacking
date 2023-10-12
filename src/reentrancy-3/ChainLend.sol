@@ -61,7 +61,7 @@ contract ChainLend {
     }
 
     // @audit-issue
-    function repay(uint256 amount) public{
+    function repay(uint256 amount) public {
 
         require(debt[msg.sender] > 0, "You don't have any debt");
         require(amount <= debt[msg.sender], "Amount to high! You don't have that much debt");
