@@ -2,8 +2,10 @@
 // https://smartcontractshacking.com/#copyright-policy
 pragma solidity ^0.8.13;
 
+import {console} from "forge-std/console.sol";
 import { IERC1155 } from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import { IERC1155Receiver } from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+
 
 contract CryptoEmpireGame is IERC1155Receiver {
 
