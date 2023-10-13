@@ -53,7 +53,5 @@ contract Reentrancy4Test is Test {
         console.log("stolen", token.balanceOf(address(attack), 2) - 1);
         assertTrue(token.balanceOf(address(attack), 2) > 20);
         vm.stopPrank();
-
-        
     }
 }
