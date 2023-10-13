@@ -10,13 +10,8 @@ import {console} from "forge-std/console.sol";
 interface ICryptoEmpireGame {
     function cryptoEmpireToken() external returns(IERC1155);
     function listForSale(uint256 _nftId, uint256 _price) external;
-
     function stake(uint256 _nftId) external;
     function unstake(uint256 _nftId) external;
-
-    function borrow(uint256 amount) external;
-
-    function deposits(address account) external returns (uint256);
 }
 
 
