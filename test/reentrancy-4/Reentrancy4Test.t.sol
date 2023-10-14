@@ -6,7 +6,7 @@ import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {CryptoEmpireGame} from "../../src/reentrancy-4/CryptoEmpireGame.sol";
 import {CryptoEmpireToken} from "../../src/reentrancy-4/CryptoEmpireToken.sol";
 import {Attack} from "../../src/reentrancy-4/Attack.sol";
-import {NftId} from "../../src/reentrancy-4/GameItems.sol";
+import {NftId} from "../../src/reentrancy-4/NftId.sol";
 
 contract Reentrancy4Test is Test {
 
