@@ -28,13 +28,22 @@ contract Dex1Test is Test {
     IERC20 weth = IERC20(WETH_ADDRESS);
 
     function setUp() public {
+        vm.deal(deployer, ETH_BALANCE);
         vm.startPrank(deployer);
         chocolate = new Chocolate(INITIAL_MINT);
         pair = IUniswapV2Pair(chocolate.uniswapV2Pair());
     }
 
-    function testDex() public {
+    function testAddLiquidity() public {
         // add liquidity tests
-        console.log(address(pair), pair.name());
+        // add liquidity of 100,000 tokens and 100 ETH (1 token = 0.001 ETH)
+        vm.startPrank(deployer);
+        chocolate.approve(address(chocolate), INITIAL_LIQUIDITY);
+        chocolate.addChocolateLiquidity{value: HUNDRED_CHOCOLATES}(INITIAL_LIQUIDITY);
+
+        // print the amount of LP tokens the deployer owns
+        console.log("LP Tokens: ", pair.balanceOf(deployer));
+
+        vm.stopPrank();
     }
 }
