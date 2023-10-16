@@ -29,6 +29,7 @@ contract Dex1Test is Test {
 
     function setUp() public {
         vm.deal(deployer, ETH_BALANCE);
+        vm.deal(user, ETH_BALANCE);
         vm.startPrank(deployer);
         chocolate = new Chocolate(INITIAL_MINT);
         pair = IUniswapV2Pair(chocolate.uniswapV2Pair());
@@ -44,6 +45,35 @@ contract Dex1Test is Test {
         // print the amount of LP tokens the deployer owns
         console.log("LP Tokens: ", pair.balanceOf(deployer));
 
+        vm.stopPrank();
+    }
+
+    function testSwap() public {
+        _setup_addLiquidity();
+        // From user swap 10 eth to chocolate
+
+        vm.startPrank(user);
+        chocolate.swapChocolates{value: TEN_ETH}(WETH_ADDRESS, TEN_ETH);
+        console.log("Eth of user: ", user.balance);
+        console.log("wEth of user: ", weth.balanceOf(user));
+        console.log("Chocolates of user: ", chocolate.balanceOf(user));
+
+        console.log("-------------------");
+        
+        // From user swap 100 chocolates to ETH
+        chocolate.approve(address(chocolate), HUNDRED_CHOCOLATES);
+        chocolate.swapChocolates(address(chocolate), HUNDRED_CHOCOLATES);
+        console.log("Eth of user: ", user.balance);
+        console.log("wEth of user: ", weth.balanceOf(user));
+        console.log("Chocolates of user: ", chocolate.balanceOf(user));
+
+        vm.stopPrank();
+    }
+
+    function _setup_addLiquidity() private {
+        vm.startPrank(deployer);
+        chocolate.approve(address(chocolate), INITIAL_LIQUIDITY);
+        chocolate.addChocolateLiquidity{value: HUNDRED_CHOCOLATES}(INITIAL_LIQUIDITY);
         vm.stopPrank();
     }
 }
