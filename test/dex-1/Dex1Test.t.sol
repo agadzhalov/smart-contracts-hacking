@@ -59,7 +59,7 @@ contract Dex1Test is Test {
         console.log("Chocolates of user: ", chocolate.balanceOf(user));
 
         console.log("-------------------");
-        
+
         // From user swap 100 chocolates to ETH
         chocolate.approve(address(chocolate), HUNDRED_CHOCOLATES);
         chocolate.swapChocolates(address(chocolate), HUNDRED_CHOCOLATES);
@@ -67,6 +67,26 @@ contract Dex1Test is Test {
         console.log("wEth of user: ", weth.balanceOf(user));
         console.log("Chocolates of user: ", chocolate.balanceOf(user));
 
+        vm.stopPrank();
+    }
+
+    function testRemoveLiquidity() public {
+        // Remove 50% of deployers liquidity
+        _setup_addLiquidity();
+        vm.startPrank(deployer);
+
+        uint256 lpBalance = pair.balanceOf(deployer);
+        uint256 chocolateBalance = chocolate.balanceOf(deployer);
+        uint256 wethBalance = weth.balanceOf(deployer);
+        pair.approve(address(chocolate), lpBalance / 2);
+        chocolate.removeChocolateLiquidity(lpBalance / 2);
+
+        // make sure the deployer owns 50% of the LP tokens
+        assertEq(pair.balanceOf(deployer), lpBalance / 2);
+
+        // make sue deployer got chocolate and weth back
+        assertTrue(chocolate.balanceOf(deployer) > chocolateBalance);
+        assertTrue(weth.balanceOf(deployer) > wethBalance);
         vm.stopPrank();
     }
 
