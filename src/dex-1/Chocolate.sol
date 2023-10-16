@@ -30,13 +30,16 @@ contract Chocolate is ERC20, Ownable {
     constructor(uint256 _initialMint) ERC20("Chocolate Token", "Choc") {
 
         // TODO: Mint tokens to owner
+        _mint(owner(), _initialMint);
         
         // TODO: SET Uniswap Router Contract
+        uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
         // TODO: Set WETH (get it from the router)
+        weth = uniswapV2Router.WETH();
 
         // TODO: Create a uniswap Pair with WETH, and store it in the contract
-
+        uniswapV2Pair = IUniswapV2Factory(uniswapV2Router.factory()).createPair(address(this), weth); 
     }
 
     /*
@@ -48,13 +51,26 @@ contract Chocolate is ERC20, Ownable {
 
         // TODO: Transfer the tokens from the sender to the contract
         // Sender should approve the contract spending the chocolate tokens
+        _transfer(msg.sender, address(this), _tokenAmount);
         
         // TODO: Convert ETH to WETH
+        IWETH(weth).deposit{value: msg.value}();
 
         // TODO: Approve the router to spend the tokens
+        IWETH(weth).approve(address(uniswapV2Router), msg.value);
+        _approve(address(this), address(uniswapV2Router), _tokenAmount);
 
         // TODO: Add the liquidity, using the router, send lp tokens to the contract owner
-        
+        (uint amountA, uint amountB, uint liquidity) = uniswapV2Router.addLiquidity(
+            address(this),
+            weth,
+            _tokenAmount,
+            msg.value,
+            1,
+            1,
+            owner(),
+            block.timestamp
+        );
     }
     
     /*
@@ -66,11 +82,21 @@ contract Chocolate is ERC20, Ownable {
         
         // TODO: Transfer the lp tokens from the sender to the contract
         // Sender should approve token spending for the contract
+        IUniswapV2Pair(uniswapV2Pair).transferFrom(msg.sender, address(this), _lpTokensToRemove);
 
         // TODO: Approve the router to spend the tokens
+        IUniswapV2Pair(uniswapV2Pair).approve(address(uniswapV2Router), _lpTokensToRemove);
     
         // TODO: Remove the liquiduity using the router, send tokens to the owner
-        
+        (uint amountA, uint amountB) = uniswapV2Router.removeLiquidity(
+            address(this),
+            weth,
+            _lpTokensToRemove,
+            1,
+            1,
+            owner(),
+            block.timestamp
+        );
     }
 
     /*
@@ -81,30 +107,46 @@ contract Chocolate is ERC20, Ownable {
     function swapChocolates(address _tokenIn, uint256 _amountIn) public payable {
 
         // TODO: Implement a dynamic function to swap Chocolate to ETH or ETH to Chocolate
+        address[] memory path = new address[](2);
         
         if(_tokenIn == address(this)) {
             // TODO: Revert if the user sent ETH
+            require(msg.value == 0, "no eth deposit");
             
             // TODO: Set the path array
+            path[0] = address(this);
+            path[1] = weth;
             
             // TODO: Transfer the chocolate tokens from the sender to this contract
+            _transfer(msg.sender, address(this), _amountIn);
 
             // TODO: Approve the router to spend the chocolate tokens
+            _approve(address(this), address(uniswapV2Router), _amountIn);
             
         } else if(_tokenIn == weth) {
             // TODO: Make sure msg.value equals _amountIn
 
             // TODO: Convert ETH to WETH
+            IWETH(weth).deposit{value: msg.value}();
             
             // TODO: Set the path array
+            path[0] = weth;
+            path[1] = address(this);
             
             // TODO: Approve the router to spend the WETH
-            
+            IWETH(weth).approve(address(uniswapV2Router), msg.value);
         } else {
             revert("wrong token");
         }
 
         // TODO: Execute the swap, send the tokens (chocolate / weth) directly to the user (msg.sender)
+        uniswapV2Router.swapExactTokensForTokens(
+            _amountIn,
+            0,
+            path,
+            msg.sender,
+            block.timestamp
+        );
         
     }
 }
