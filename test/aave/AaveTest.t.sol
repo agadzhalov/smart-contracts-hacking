@@ -14,6 +14,7 @@ contract AaveTest is Test {
     address public immutable aUSDC_Addr = address(0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c);
     address public immutable debtDai_Addr = address(0xcF8d0c70c850859266f5C338b38F9D663181C314);
     address public immutable whaleAccount = address(0xF977814e90dA44bFA03b6295A0616a897441aceC);
+    uint128 constant AMOUNT_TO_DEPOSIT = 10000e6;
 
     AaveUser aave;
     address user = makeAddr("user");
@@ -40,16 +41,17 @@ contract AaveTest is Test {
         IERC20 usdc = IERC20(USDC_Addr);
         vm.startPrank(user);
         // approve usdc
-        usdc.approve(address(aave), 100e6);
+        usdc.approve(address(aave), AMOUNT_TO_DEPOSIT);
         // deposit usdc
-        aave.depositUSDC(100e6);
+        aave.depositUSDC(AMOUNT_TO_DEPOSIT);
 
         // asserts receipt tokens were minted
-        assertTrue(aave.depositedBalance(user, USDC_Addr) == 100e6);
-        assertEq(IERC20(aUSDC_Addr).balanceOf(user), 100e6);
+        assertEq(IERC20(aUSDC_Addr).balanceOf(address(aave)), AMOUNT_TO_DEPOSIT);
 
         // withdraw
-        //aave.withdrawUSDC(100e6);
+        aave.withdrawUSDC(AMOUNT_TO_DEPOSIT);
+        assertEq(IERC20(aUSDC_Addr).balanceOf(address(aave)), 0);
+
 
         vm.stopPrank();
 

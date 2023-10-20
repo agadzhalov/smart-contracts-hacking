@@ -37,7 +37,7 @@ contract AaveUser is Ownable {
 
         // TODO: Supply USDC to aavePool Pool
         usdcToken.approve(address(pool), _amount);
-        pool.supply(address(usdcToken), _amount, msg.sender, 0);
+        pool.supply(address(usdcToken), _amount, address(this), 0);
         
     }
 
