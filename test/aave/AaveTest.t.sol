@@ -15,6 +15,7 @@ contract AaveTest is Test {
     address public immutable debtDai_Addr = address(0xcF8d0c70c850859266f5C338b38F9D663181C314);
     address public immutable whaleAccount = address(0xF977814e90dA44bFA03b6295A0616a897441aceC);
     uint128 constant AMOUNT_TO_DEPOSIT = 10000e6;
+    uint128 constant AMOUNT_TO_BORROW = 1000e6;
 
     AaveUser aave;
     address user = makeAddr("user");
@@ -47,6 +48,17 @@ contract AaveTest is Test {
 
         // asserts receipt tokens were minted
         assertEq(IERC20(aUSDC_Addr).balanceOf(address(aave)), AMOUNT_TO_DEPOSIT);
+
+        // borrow
+        aave.borrowDAI(AMOUNT_TO_BORROW);
+        assertEq(IERC20(debtDai_Addr).balanceOf(address(aave)), AMOUNT_TO_BORROW);
+
+        // repay
+        IERC20 dai = IERC20(DAI_Addr);
+        dai.approve(address(aave), AMOUNT_TO_BORROW);
+        aave.repayDAI(AMOUNT_TO_BORROW);
+        // asserts debt tokens are burnt
+        assertEq(IERC20(debtDai_Addr).balanceOf(address(aave)), 0);
 
         // withdraw
         aave.withdrawUSDC(AMOUNT_TO_DEPOSIT);

@@ -15,7 +15,8 @@ contract AaveUser is Ownable {
     IERC20 private immutable daiToken;
 
     mapping(address user => mapping(address token => uint256)) public depositedAmount;
-    mapping(address user => mapping(address token => uint256)) public borrowedAmount;
+    //mapping(address user => mapping(address token => uint256)) public borrowedAmount;
+    uint256 public borrowedAmount;
     
     // TODO: Complete the constructor
     constructor(address _pool, address _usdc, address _dai) {
@@ -60,10 +61,13 @@ contract AaveUser is Ownable {
         // TODO: Implement this function
 
         // TODO: Update borrowedAmmount state var
+        borrowedAmount += _amount;
 
         // TODO: Borrow the DAI tokens in variable interest mode
+        pool.borrow(address(daiToken), _amount, 2, 0, address(this));
 
         // TODO: Transfer DAI token to the user
+        daiToken.transfer(msg.sender, _amount);
 
     }
 
@@ -72,18 +76,18 @@ contract AaveUser is Ownable {
         // TODO: Implement this function
 
         // TODO: Revert if the user is trying to repay more tokens that he borrowed
+        require(_amount <= borrowedAmount, "you haven't borrowed so much");
 
         // TODO: Update borrowedAmmount state var
+        borrowedAmount -= _amount;
         
         // TODO: Transfer the DAI tokens from the user to this contract
+        daiToken.transferFrom(msg.sender, address(this), _amount);
 
         // TODO: Approve AAVE Pool to spend the DAI tokens
+        daiToken.approve(address(pool), _amount);
 
         // TODO: Repay the loan
-        
-    }
-
-    function depositedBalance(address _user, address _token) external returns(uint256) {
-        return depositedAmount[_user][_token];
+        pool.repay(address(daiToken), _amount, 2, address(this));
     }
 }
