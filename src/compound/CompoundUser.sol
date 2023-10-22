@@ -19,8 +19,6 @@ contract CompoundUser is Ownable {
     uint256 public depositedAmount; // In USDC
     uint256 public borrowedAmount; // In DAI
 
-    address[] private cTokens;
-
     // TODO: Implement the constructor
     constructor(address _comptroller, address _cUsdc, address _cDai) {
         
@@ -55,7 +53,8 @@ contract CompoundUser is Ownable {
     // Allow the deposited USDC to be used as collateral, interact with the Comptroller contract
     function allowUSDCAsCollateral() external onlyOwner {
         // TODO: Implement this function
-        cTokens.push(address(cUsdc));
+        address[] memory cTokens = new address[](1);
+        cTokens[0] = address(cUsdc);
 
         // TODO: Use the comptroller `enterMarkets` function to set the usdc as collateral
         uint[] memory code = comptroller.enterMarkets(cTokens);
