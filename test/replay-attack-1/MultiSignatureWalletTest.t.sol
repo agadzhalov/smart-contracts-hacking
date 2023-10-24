@@ -5,12 +5,14 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 
 import {MultiSignatureWallet} from "src/replay-attack-1/MultiSignatureWallet.sol";
+import {MultiSignatureWalletSecure} from "src/replay-attack-1/MultiSignatureWalletSecure.sol";
+
 
 /**
 @dev run "forge test --match-contract RA1 -vvvvv" 
 */
 contract MultiSignatureWalletTest is Test {
-    MultiSignatureWallet multiSigWallet;
+    MultiSignatureWalletSecure multiSigWallet;
 
     address deployer;
     uint256 deployerKey;
@@ -33,7 +35,7 @@ contract MultiSignatureWalletTest is Test {
         signatories[0] = deployer;
         signatories[1] = signer2;
         vm.prank(deployer);
-        multiSigWallet = new MultiSignatureWallet(signatories);
+        multiSigWallet = new MultiSignatureWalletSecure(signatories);
 
         // Send ETH to multisig Wallet
         vm.deal(deployer, ETH_IN_MULTISIG);
@@ -52,7 +54,7 @@ contract MultiSignatureWalletTest is Test {
 
         //Deployer signs the message and it is stored in "deployerSignature"
         (v, r, s) = vm.sign(deployerKey, message);
-        MultiSignatureWallet.Signature memory deployerSignature = MultiSignatureWallet.Signature(v, r, s);
+        MultiSignatureWalletSecure.Signature memory deployerSignature = MultiSignatureWalletSecure.Signature(v, r, s);
         
 
         console.log("Signature 1: ");
@@ -64,7 +66,7 @@ contract MultiSignatureWalletTest is Test {
         
         //signer2 signs the message and it is stored in "signer2Signature"
         (v, r, s) = vm.sign(signer2Key, message);
-        MultiSignatureWallet.Signature memory signer2Signature = MultiSignatureWallet.Signature(v, r, s);
+        MultiSignatureWalletSecure.Signature memory signer2Signature = MultiSignatureWalletSecure.Signature(v, r, s);
         console.log("Signature 2: ");
         console.log("v: ", v);
         console.log("r: ");
@@ -83,13 +85,13 @@ contract MultiSignatureWalletTest is Test {
         bytes32 r = bytes32(0x1ddabf42460a80d2780a214aeec06787c1feb8046f4a88662db254e1ea1c15db);
         bytes32 s = bytes32(0x1ddb0931fa6572af9ea5bab4c7afd0779a095beb68a9ca160c8b23647d63f7f9);
 
-        MultiSignatureWallet.Signature memory deployerSignature = MultiSignatureWallet.Signature(v, r, s);
+        MultiSignatureWalletSecure.Signature memory deployerSignature = MultiSignatureWalletSecure.Signature(v, r, s);
 
         uint8 v2 = 27;
         bytes32 r2 = bytes32(0xada7024b0ac3b997b1d05eedf4ba6020f1fdc92eaae47c2e9c6ec354ec86b075);
         bytes32 s2 = bytes32(0x541172db522d0cc2ef6c651c8ef67b9f8fb858b394e239d8d1507e58356f787c);
 
-        MultiSignatureWallet.Signature memory signerSignature = MultiSignatureWallet.Signature(v2, r2, s2);
+        MultiSignatureWalletSecure.Signature memory signerSignature = MultiSignatureWalletSecure.Signature(v2, r2, s2);
 
         
         for (uint i = 0; i < 99; i++) {

@@ -10,10 +10,12 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
  * @title MultiSignatureWallet
  * @author JohnnyTime (https://smartcontractshacking.com)
  */
-contract MultiSignatureWallet is EIP712 {
+contract MultiSignatureWalletSecure is EIP712 {
 
   using Address for address payable;
   address[2] public signatories;
+
+  mapping(bytes32 => bool) public usedSignatures;
 
   struct Signature {
     uint8 v;
@@ -30,14 +32,15 @@ contract MultiSignatureWallet is EIP712 {
     uint256 amount,
     Signature[2] memory signatures
   ) external {
+    bytes32 sig1 = keccak256(abi.encodePacked(signatures[0].v, signatures[0].r, signatures[0].s));
+    bytes32 sig2 = keccak256(abi.encodePacked(signatures[1].v, signatures[1].r, signatures[1].s));
 
-    // Authenticity check
-    console.log("auu");
-    console.log(_verifySignature(to, amount, signatures[0]), signatories[0]);
-    console.log(_verifySignature(to, amount, signatures[1]), signatories[1]);
+  
+    require(usedSignatures[sig1] == false && usedSignatures[sig2] == false, "one of the signatures is expired");
     require(_verifySignature(to, amount, signatures[0]) == signatories[0], "Access restricted");
     require(_verifySignature(to, amount, signatures[1]) == signatories[1], "Access restricted");
-
+    usedSignatures[sig1] = true;
+    usedSignatures[sig2] = true;
     payable(to).sendValue(amount);
   }
 
