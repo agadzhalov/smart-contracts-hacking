@@ -37,6 +37,13 @@ contract TestRA2 is Test {
         // Deploy RealtySale
         vm.startPrank(deployer);
         realtySale = new RealtySale();
+        /**
+         * THE FIX IS TO SET ORACLE BECAUSE 
+         * OTHERWISE IS address(0) BE AWARE 
+         * OF POOR CONFIG
+         */
+        //realtySale.setOracle(address(this));
+        
         // Attach to deployed RealtyToken
         realtyToken = IRealtyToken(realtySale.getTokenContract());
         vm.stopPrank();
