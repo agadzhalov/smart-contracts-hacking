@@ -35,7 +35,7 @@ contract RedHawksTest is Test {
         vm.prank(deployer);
         
         redhaw = new RedHawksVIP(voucherSigner);
-        redhaw.mint(2, "1245", _getSignature());
+        redhaw.mint(2, "RedHawsRulzzz133", _getSignature());
         redhaw.safeTransferFrom(address(this), deployer, 1);
         redhaw.safeTransferFrom(address(this), deployer, 2);
         assertEq(redhaw.balanceOf(deployer), 2);
@@ -64,7 +64,7 @@ contract RedHawksTest is Test {
                         'VoucherData(uint256 amountOfTickets,string password)' 
                     ),
                     2,
-                    keccak256(bytes("1245")) // Only hash string
+                    keccak256(bytes("RedHawsRulzzz133")) // Only hash string
                 )
             )
         );

