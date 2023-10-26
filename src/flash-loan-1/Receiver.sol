@@ -2,6 +2,8 @@
 // https://smartcontractshacking.com/#copyright-policy
 pragma solidity ^0.8.13;
 
+import "forge-std/Test.sol";
+
 interface IPool {
     function flashLoan(uint256 amount) external;
 }
@@ -13,7 +15,8 @@ interface IPool {
 contract Receiver {
 
     IPool pool;
-
+    uint256 public amountToReturn;
+    
     constructor(address _poolAddress) {
         pool = IPool(_poolAddress);
     }
@@ -22,8 +25,15 @@ contract Receiver {
 
     // TODO: Complete this function
     function flashLoan(uint256 amount) external {
+        pool.flashLoan(amount);
     }
 
     // TODO: Complete getETH() payable function
+    function getETH() external payable {
+        // do something with money
+        console.log("receiver during loan", address(this).balance);
+        // return money
+        address(pool).call{value: msg.value}("");
+    }
 
 }
