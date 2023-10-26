@@ -2,7 +2,7 @@
 // https://smartcontractshacking.com/#copyright-policy
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
+import "forge-std/console.sol";
 
 interface IPool {
     function flashLoan(uint256 amount) external;
@@ -26,14 +26,17 @@ contract Receiver {
     // TODO: Complete this function
     function flashLoan(uint256 amount) external {
         pool.flashLoan(amount);
+        (bool success, bytes memory data) = address(pool).call{value: amount}("");
+
     }
 
     // TODO: Complete getETH() payable function
-    function getETH() external payable {
+    function getETH() external payable returns(bytes32) {
         // do something with money
         console.log("receiver during loan", address(this).balance);
         // return money
         address(pool).call{value: msg.value}("");
+        return keccak256("Receiver.getETH");
     }
 
 }

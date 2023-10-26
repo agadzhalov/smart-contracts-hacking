@@ -5,7 +5,7 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 
 interface IReceiver {
-    function getETH() external payable;
+    function getETH() external payable returns(bytes32);
 }
 
 /**
@@ -13,6 +13,8 @@ interface IReceiver {
  * @author JohnnyTime (https://smartcontractshacking.com)
  */
 contract Pool {
+    bytes32 public immutable CALLBACKK_SUCCES = keccak256("Receiver.getETH");
+    uint256 public amountToReturn;
     
     constructor() payable {}
 
@@ -20,10 +22,12 @@ contract Pool {
     function flashLoan(uint256 amount) external {
         uint256 initBalance = address(this).balance;
         require(initBalance >= amount, "not enough balance in pool");
-        IReceiver(msg.sender).getETH{value: amount}();
+        require(IReceiver(msg.sender).getETH{value: amount}() == CALLBACKK_SUCCES, "callback failure");
         // sends assets
-        require(initBalance >= address(this).balance, "receiver can't return the loan");
+        require(initBalance <= address(this).balance, "receiver can't return the loan");
     }
 
-    receive() external payable {}
+    receive() external payable {
+        amountToReturn = msg.value;
+    }
 }
