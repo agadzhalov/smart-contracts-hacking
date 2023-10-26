@@ -21,7 +21,7 @@ contract RedHawksVIP is ERC721 {
     // Variables
     uint16 public currentSupply;
     address public vouchersSigner;
-    mapping (bytes => mapping (address => bool)) public usedVouchers;
+    mapping (bytes => bool) public usedVouchers;
     
     struct VoucherData {
         uint amountOfTickets; 
@@ -60,7 +60,7 @@ contract RedHawksVIP is ERC721 {
 
     function _verifyVoucher(VoucherData memory data, bytes memory signature) internal {
 
-        require(!usedVouchers[signature][msg.sender], "Voucher used");
+        require(!usedVouchers[signature], "Voucher used");
         
         bytes32 dataHash = _hashTypedDataV4(
             keccak256(
@@ -78,7 +78,7 @@ contract RedHawksVIP is ERC721 {
         console.log(recoveredAddress, vouchersSigner);
 
         require(recoveredAddress == vouchersSigner, 'Invalid voucher');
-        usedVouchers[signature][msg.sender] = true;
+        usedVouchers[signature] = true;
     }
 
     function _domainSeparatorV4() internal view returns (bytes32) {
