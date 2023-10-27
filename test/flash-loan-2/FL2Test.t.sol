@@ -37,7 +37,7 @@ contract FL2Test is Test {
     function testAaveInteraction() public {
         uint256 poolInitBalance = IERC20(USDC_ADDRESS).balanceOf(AAVE_LP_ADDRESS);
         vm.startPrank(WHALE_ADDRESS);
-        usdc.transfer(address(flashLoan), HUNDRED_USDC);
+        usdc.transfer(address(flashLoan), (ILendingPool(AAVE_LP_ADDRESS).FLASHLOAN_PREMIUM_TOTAL() * 1e6)/100);
         uint256 contractInitBalance = IERC20(USDC_ADDRESS).balanceOf(address(flashLoan));
         console.log(contractInitBalance, ILendingPool(AAVE_LP_ADDRESS).FLASHLOAN_PREMIUM_TOTAL() * 1e6);
         flashLoan.getFlashLoan(USDC_ADDRESS, HUNDRED_USDC);

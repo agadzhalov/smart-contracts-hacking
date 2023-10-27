@@ -44,6 +44,7 @@ contract FlashLoan {
         address initiator,
         bytes memory params
     ) public returns (bool) {
+        require(msg.sender == address(pool), "not pool");
 
         console.log("Pool during", IERC20(assets[0]).balanceOf(address(pool)));
         console.log("Contract during: ", IERC20(assets[0]).balanceOf(address(this)));
