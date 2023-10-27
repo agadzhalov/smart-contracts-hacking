@@ -26,8 +26,6 @@ contract Receiver {
     // TODO: Complete this function
     function flashLoan(uint256 amount) external {
         pool.flashLoan(amount);
-        (bool success, bytes memory data) = address(pool).call{value: amount}("");
-
     }
 
     // TODO: Complete getETH() payable function
@@ -35,7 +33,8 @@ contract Receiver {
         // do something with money
         console.log("receiver during loan", address(this).balance);
         // return money
-        address(pool).call{value: msg.value}("");
+        (bool success, ) = address(pool).call{value: msg.value}("");
+        require(success, "failed return");
         return keccak256("Receiver.getETH");
     }
 
