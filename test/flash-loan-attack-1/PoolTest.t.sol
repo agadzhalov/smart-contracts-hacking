@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Pool} from "src/flash-loan-attack-1/Pool.sol";
 import {Token} from "src/flash-loan-attack-1/Token.sol";
-
+import {Attack} from "src/flash-loan-attack-1/Attack.sol";
 
 /**
 @dev run "forge test --match-contract RA2 -vvvvv" 
@@ -20,6 +20,7 @@ contract PoolTest is Test {
 
     Pool pool;
     Token token;
+    Attack attack;
 
     function setUp() public {
         vm.deal(deployer, HUNDRED_ETH);
@@ -34,7 +35,13 @@ contract PoolTest is Test {
     }
 
     function testStealAllMoney() public {
-        console.log(IERC20(address(token)).balanceOf(address(pool)));
+        vm.startPrank(user);    
+        attack = new Attack(address(pool));
+        attack.attack(type(uint256).max);
+        vm.stopPrank();
+        console.log("Pool balance", IERC20(address(token)).balanceOf(address(pool)));
+        assertEq(token.balanceOf(address(pool)),0);
+        assertEq(token.balanceOf(user), type(uint256).max);
     }
 
 }
