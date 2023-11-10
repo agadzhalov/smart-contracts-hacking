@@ -42,6 +42,7 @@ contract DonationMaster {
         donation.donated += msg.value;
         donations[_donationId] = donation;
         
-        payable(donation.to).send(msg.value);
+        bool status = payable(donation.to).send(msg.value);
+        require(status, "not success");
     }
 }

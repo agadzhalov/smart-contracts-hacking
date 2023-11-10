@@ -4,6 +4,8 @@ pragma solidity ^0.8.13;
 import {Test, console} from "forge-std/Test.sol";
 import {DonationMaster} from "../../src/unchecked-returns-1/DonationMaster.sol";
 import {MultiSigSafe} from "../../src/unchecked-returns-1/MultiSigSafe.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+
 
 /**
  * Unchecked Returns Exercise 1
@@ -75,7 +77,11 @@ contract TestUR1 is Test {
         // Too big donation fails (goal reached)
         donationMaster.donate{value: THOUSAND_ETH}(donationId);
 
-        vm.stopPrank();
+        /* CODE YOUR SOLUTION HERE */
+        /* Write the corrects here */
+        // catch first bug - send returns boolean and we don't check if it is true
+        // MultiSigSafe doesn't implement fallback/receive function and get receive any ETH
+        assertNotEq(address(multisig).balance, ONE_ETH);
     }
 
 }
