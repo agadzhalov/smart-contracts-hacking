@@ -7,7 +7,7 @@ import "forge-std/Test.sol";
  * @title DonationMaster
  * @author JohnnyTime (https://smartcontractshacking.com)
  */
-contract DonationMaster { 
+contract DonationMasterSecured { 
 
     uint public donationsNo = 1;
 
