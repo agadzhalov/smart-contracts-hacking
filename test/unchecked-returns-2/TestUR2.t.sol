@@ -43,6 +43,8 @@ contract TestUR2 is Test {
         // Set attacker balance to 2 ETH
         vm.deal(attacker, TWO_ETH);
         vm.deal(userOne, USER1_ESCROW_AMOUNT);
+        vm.deal(userTwo, USER2_ESCROW_AMOUNT);
+        vm.deal(userThree, USER3_ESCROW_AMOUNT);
 
         vm.startPrank(deployer);
 
@@ -84,6 +86,18 @@ contract TestUR2 is Test {
         uint256 balanceAfter = userTwo.balance;
         assertGt(balanceAfter, balanceBefore);
         vm.stopPrank();
+
+
+        // Some users escrow more ETH
+        vm.deal(userOne, USER1_ESCROW_AMOUNT);
+        
+        vm.prank(userOne);
+        escrow.escrowEth{value: USER1_ESCROW_AMOUNT}(userTwo, ONE_MONTH);
+        vm.prank(userTwo);
+        escrow.escrowEth{value: USER2_ESCROW_AMOUNT}(userOne, ONE_MONTH);
+        vm.prank(userThree);
+        escrow.escrowEth{value: USER3_ESCROW_AMOUNT}(userThree, ONE_MONTH);
+        console.log("Escrow Balance", address(escrow).balance);
     }
 
 }
