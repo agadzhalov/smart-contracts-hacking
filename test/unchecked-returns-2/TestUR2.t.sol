@@ -96,8 +96,7 @@ contract TestUR2 is Test {
         vm.prank(userTwo);
         escrow.escrowEth{value: USER2_ESCROW_AMOUNT}(userOne, ONE_MONTH);
         vm.prank(userThree);
-        escrow.escrowEth{value: USER3_ESCROW_AMOUNT}(userThree, ONE_MONTH);
-        console.log("Escrow Balance", address(escrow).balance);
+        escrow.escrowEth{value: USER3_ESCROW_AMOUNT}(userOne, ONE_MONTH);
     }
 
 }
