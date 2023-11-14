@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {Test, console} from "forge-std/Test.sol";
 import {EscrowNFT} from "../../src/unchecked-returns-2/EscrowNFT.sol";
 import {Escrow} from "../../src/unchecked-returns-2/Escrow.sol";
+import {EscrowSafe} from "../../src/unchecked-returns-2/EscrowSafe.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 
@@ -22,7 +23,7 @@ contract TestUR2 is Test {
     address private attacker;
 
     EscrowNFT escrowNft;
-    Escrow escrow;
+    EscrowSafe escrow;
 
     uint256 private constant ONE_MONTH = 30 * 24 * 60 * 60;
 
@@ -51,7 +52,7 @@ contract TestUR2 is Test {
         // Deploy NFT
         escrowNft = new EscrowNFT();
         // Deploy Escrow
-        escrow = new Escrow(address(escrowNft));
+        escrow = new EscrowSafe(address(escrowNft));
         // Transfer ownership of NFT contrct to Escrow contract
         escrowNft.transferOwnership(address(escrow));
         vm.stopPrank();
