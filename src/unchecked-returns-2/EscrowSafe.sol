@@ -44,6 +44,7 @@ contract EscrowSafe is Ownable {
         require(matureTime <= block.timestamp, "Escrow period not expired.");
 
         // option 1
+        // IEscrowNFT(escrowNFT).burn(_tokenId);
 
         // option 2
         (bool success, ) = escrowNFT.call(abi.encodeWithSignature("burn(uint256)", _tokenId));
