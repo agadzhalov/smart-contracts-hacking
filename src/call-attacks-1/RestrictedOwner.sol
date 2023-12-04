@@ -2,6 +2,7 @@
 // https://smartcontractshacking.com/#copyright-policy
 pragma solidity ^0.8.13;
 
+import {console} from "forge-std/console.sol";
 /**
  * @title RestrictedOwner
  * @author JohnnyTime (https://smartcontractshacking.com)
